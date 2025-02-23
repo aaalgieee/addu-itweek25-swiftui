@@ -8,14 +8,46 @@
 import SwiftUI
 
 struct ContentView: View {
+   
+    
+    @State private var recipes: [Recipe] = []
+    @State private var showingAddRecipe = false
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            List {
+                ForEach($recipes) { $recipe in
+                    NavigationLink(destination: RecipeDetailView(recipe: $recipe)) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(recipe.name)
+                                .font(.headline)
+                            Text("\(recipe.cookingTime) minutes")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        .padding(.vertical, 8)
+                    }
+                }
+                .onDelete(perform: deleteRecipes)
+            }
+            .listStyle(.insetGrouped)
+            .navigationTitle("Recipe Book")
+            .toolbar {
+                Button(action: {
+                    showingAddRecipe = true
+                }) {
+                    Image(systemName: "plus")
+                        .padding(8)
+                }
+            }
+            .sheet(isPresented: $showingAddRecipe) {
+                AddRecipeView(recipes: $recipes)
+            }
         }
-        .padding()
+    }
+    
+    func deleteRecipes(at offsets: IndexSet) {
+        recipes.remove(atOffsets: offsets)
     }
 }
 
